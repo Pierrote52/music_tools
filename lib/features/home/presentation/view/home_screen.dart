@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../metronome/presentation/view/metronome_screen.dart';
+import '../../../tuner/presentation/view/tuner_screen.dart';
 
 /// Entry screen of the application.
 ///
@@ -17,6 +18,11 @@ class HomeScreen extends StatelessWidget {
       label: 'Metronome',
       icon: Icons.av_timer,
       builder: (context) => const MetronomeScreen(),
+    ),
+    _ToolEntry(
+      label: 'Tuner',
+      icon: Icons.graphic_eq,
+      builder: (context) => const TunerScreen(),
     ),
   ];
 
