@@ -14,8 +14,11 @@ class BeatIndicator extends StatelessWidget {
     super.key,
   });
 
-  static const double _restingDiameter = 14;
-  static const double _activeDiameter = 24;
+  /// The fixed layout size of every dot's box. Only the *drawn* scale
+  /// changes between resting and active — the box itself never resizes,
+  /// so a beat pulsing never reflows the surrounding Row/Card.
+  static const double _dotDiameter = 24;
+  static const double _restingScale = 14 / _dotDiameter;
   static const Duration _animationDuration = Duration(milliseconds: 110);
 
   /// How many beats make up the bar, i.e. how many dots to draw.
@@ -60,27 +63,35 @@ class _BeatDot extends StatelessWidget {
   Widget build(BuildContext context) {
     final activeColor = isAccent ? colorScheme.tertiary : colorScheme.primary;
 
-    return AnimatedContainer(
-      duration: BeatIndicator._animationDuration,
-      curve: Curves.easeOut,
-      width: isActive
-          ? BeatIndicator._activeDiameter
-          : BeatIndicator._restingDiameter,
-      height: isActive
-          ? BeatIndicator._activeDiameter
-          : BeatIndicator._restingDiameter,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: isActive ? activeColor : colorScheme.onSurface.withValues(alpha: 0.12),
-        boxShadow: isActive
-            ? [
-                BoxShadow(
-                  color: activeColor.withValues(alpha: 0.4),
-                  blurRadius: 10,
-                  spreadRadius: 1,
-                ),
-              ]
-            : null,
+    return SizedBox(
+      width: BeatIndicator._dotDiameter,
+      height: BeatIndicator._dotDiameter,
+      child: Center(
+        child: AnimatedScale(
+          duration: BeatIndicator._animationDuration,
+          curve: Curves.easeOut,
+          scale: isActive ? 1 : BeatIndicator._restingScale,
+          child: AnimatedContainer(
+            duration: BeatIndicator._animationDuration,
+            width: BeatIndicator._dotDiameter,
+            height: BeatIndicator._dotDiameter,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isActive
+                  ? activeColor
+                  : colorScheme.onSurface.withValues(alpha: 0.12),
+              boxShadow: isActive
+                  ? [
+                      BoxShadow(
+                        color: activeColor.withValues(alpha: 0.4),
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                      ),
+                    ]
+                  : null,
+            ),
+          ),
+        ),
       ),
     );
   }

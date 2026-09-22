@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/services/audio_click_sound_player.dart';
 import '../../data/services/drift_corrected_metronome_ticker.dart';
-import '../../data/services/system_click_sound_player.dart';
 import '../../domain/entities/beat_pattern.dart';
 import '../../domain/entities/tempo.dart';
 import '../../domain/services/click_sound_player.dart';

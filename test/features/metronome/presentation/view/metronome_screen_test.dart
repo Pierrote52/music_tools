@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:music_tools/features/metronome/data/services/audio_click_sound_player.dart';
 import 'package:music_tools/features/metronome/data/services/drift_corrected_metronome_ticker.dart';
-import 'package:music_tools/features/metronome/data/services/system_click_sound_player.dart';
 import 'package:music_tools/features/metronome/presentation/view/metronome_screen.dart';
 
 import '../../fakes/fake_click_sound_player.dart';

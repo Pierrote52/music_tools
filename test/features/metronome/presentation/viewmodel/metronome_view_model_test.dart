@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:music_tools/features/metronome/data/services/audio_click_sound_player.dart';
 import 'package:music_tools/features/metronome/data/services/drift_corrected_metronome_ticker.dart';
-import 'package:music_tools/features/metronome/data/services/system_click_sound_player.dart';
 import 'package:music_tools/features/metronome/domain/entities/tempo.dart';
 import 'package:music_tools/features/metronome/presentation/viewmodel/metronome_view_model.dart';
 

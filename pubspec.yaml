@@ -51,6 +51,11 @@ dependencies:
   # detector, see lib/features/tuner/data/.
   record: ^7.1.1
 
+  # Reliable click-sound playback for the metronome, on the media volume
+  # stream (unlike SystemSound, not silenced by the "touch sounds" system
+  # setting). See lib/features/metronome/data/.
+  audioplayers: ^6.8.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

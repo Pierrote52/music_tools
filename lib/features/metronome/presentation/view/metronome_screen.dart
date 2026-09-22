@@ -30,6 +30,12 @@ class MetronomeScreen extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
+            // Stretched so the Card/Wrap/button always span the same
+            // width — otherwise a shrink-wrapped Card resizes (and the
+            // whole layout visibly shifts) whenever its widest child
+            // changes, e.g. the beat dot pulsing or the BPM digit count
+            // changing from 2 to 3 digits.
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
               Card(
@@ -70,21 +76,18 @@ class MetronomeScreen extends ConsumerWidget {
                 ],
               ),
               const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: state.isPlaying ? viewModel.stop : viewModel.start,
-                  icon: Icon(
-                    state.isPlaying
-                        ? Icons.stop_rounded
-                        : Icons.play_arrow_rounded,
-                  ),
-                  label: Text(state.isPlaying ? 'Stop' : 'Start'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: state.isPlaying
-                        ? colorScheme.error
-                        : colorScheme.primary,
-                  ),
+              FilledButton.icon(
+                onPressed: state.isPlaying ? viewModel.stop : viewModel.start,
+                icon: Icon(
+                  state.isPlaying
+                      ? Icons.stop_rounded
+                      : Icons.play_arrow_rounded,
+                ),
+                label: Text(state.isPlaying ? 'Stop' : 'Start'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: state.isPlaying
+                      ? colorScheme.error
+                      : colorScheme.primary,
                 ),
               ),
               const SizedBox(height: 24),
