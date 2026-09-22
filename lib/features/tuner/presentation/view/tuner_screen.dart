@@ -23,31 +23,50 @@ class TunerScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Tuner')),
-      body: Center(
+      body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
+              const Spacer(),
               NoteDisplay(reading: state.reading),
-              const SizedBox(height: 24),
+              const SizedBox(height: 40),
               CentsGauge(reading: state.reading),
-              const SizedBox(height: 32),
+              const Spacer(),
               if (state.errorMessage case final message?) ...[
-                Text(
-                  message,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: colorScheme.error),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: colorScheme.errorContainer,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: colorScheme.onErrorContainer),
+                  ),
                 ),
                 const SizedBox(height: 16),
               ],
-              FilledButton.icon(
-                onPressed: state.isListening
-                    ? viewModel.stopListening
-                    : viewModel.startListening,
-                icon: Icon(state.isListening ? Icons.mic : Icons.mic_none),
-                label: Text(state.isListening ? 'Stop' : 'Start'),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: state.isListening
+                      ? viewModel.stopListening
+                      : viewModel.startListening,
+                  icon: Icon(
+                    state.isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+                  ),
+                  label: Text(state.isListening ? 'Stop' : 'Start'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: state.isListening
+                        ? colorScheme.error
+                        : colorScheme.primary,
+                  ),
+                ),
               ),
+              const SizedBox(height: 24),
             ],
           ),
         ),

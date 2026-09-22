@@ -22,44 +22,72 @@ class MetronomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(metronomeViewModelProvider);
     final viewModel = ref.read(metronomeViewModelProvider.notifier);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Metronome')),
-      body: Center(
+      body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              BeatIndicator(
-                beatsPerBar: state.beatPattern.beatsPerBar,
-                currentBeat: state.currentBeat,
-              ),
-              const SizedBox(height: 32),
-              TempoStepper(
-                tempo: state.tempo,
-                onDecrement: viewModel.decrementTempo,
-                onIncrement: viewModel.incrementTempo,
+              const Spacer(),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 40,
+                    horizontal: 24,
+                  ),
+                  child: Column(
+                    children: [
+                      BeatIndicator(
+                        beatsPerBar: state.beatPattern.beatsPerBar,
+                        currentBeat: state.currentBeat,
+                      ),
+                      const SizedBox(height: 36),
+                      TempoStepper(
+                        tempo: state.tempo,
+                        onDecrement: viewModel.decrementTempo,
+                        onIncrement: viewModel.incrementTempo,
+                      ),
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(height: 24),
               Wrap(
-                spacing: 8,
+                spacing: 10,
                 alignment: WrapAlignment.center,
                 children: [
                   for (final beatsPerBar in _selectableBeatsPerBar)
                     ChoiceChip(
                       label: Text('$beatsPerBar/4'),
-                      selected: state.beatPattern == BeatPattern(beatsPerBar: beatsPerBar),
+                      selected:
+                          state.beatPattern ==
+                          BeatPattern(beatsPerBar: beatsPerBar),
                       onSelected: (_) => viewModel.setBeatsPerBar(beatsPerBar),
                     ),
                 ],
               ),
-              const SizedBox(height: 32),
-              FilledButton.icon(
-                onPressed: state.isPlaying ? viewModel.stop : viewModel.start,
-                icon: Icon(state.isPlaying ? Icons.stop : Icons.play_arrow),
-                label: Text(state.isPlaying ? 'Stop' : 'Start'),
+              const Spacer(),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: state.isPlaying ? viewModel.stop : viewModel.start,
+                  icon: Icon(
+                    state.isPlaying
+                        ? Icons.stop_rounded
+                        : Icons.play_arrow_rounded,
+                  ),
+                  label: Text(state.isPlaying ? 'Stop' : 'Start'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: state.isPlaying
+                        ? colorScheme.error
+                        : colorScheme.primary,
+                  ),
+                ),
               ),
+              const SizedBox(height: 24),
             ],
           ),
         ),

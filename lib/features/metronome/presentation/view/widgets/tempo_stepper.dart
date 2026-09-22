@@ -24,28 +24,61 @@ class TempoStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        IconButton(
-          onPressed: onDecrement,
-          icon: const Icon(Icons.remove_circle_outline),
+        _StepButton(
+          icon: Icons.remove_rounded,
           tooltip: 'Decrease tempo',
+          onPressed: onDecrement,
         ),
         SizedBox(
-          width: 120,
+          width: 160,
           child: Text(
             '${tempo.bpm} BPM',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+              color: colorScheme.primary,
+            ),
           ),
         ),
-        IconButton(
-          onPressed: onIncrement,
-          icon: const Icon(Icons.add_circle_outline),
+        _StepButton(
+          icon: Icons.add_rounded,
           tooltip: 'Increase tempo',
+          onPressed: onIncrement,
         ),
       ],
+    );
+  }
+}
+
+/// A round, tonal +/- button used on either side of the tempo display.
+class _StepButton extends StatelessWidget {
+  const _StepButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return IconButton.filledTonal(
+      onPressed: onPressed,
+      icon: Icon(icon),
+      tooltip: tooltip,
+      style: IconButton.styleFrom(
+        backgroundColor: colorScheme.primaryContainer,
+        foregroundColor: colorScheme.onPrimaryContainer,
+        minimumSize: const Size(48, 48),
+      ),
     );
   }
 }
