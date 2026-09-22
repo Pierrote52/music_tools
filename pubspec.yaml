@@ -39,6 +39,10 @@ dependencies:
   # ViewModel layer of the MVVM architecture (see docs/ARCHITECTURE.md).
   flutter_riverpod: ^3.4.3
 
+  # @immutable annotation used on domain entities and view states, so the
+  # analyzer flags any accidental mutable field.
+  meta: ^1.18.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
