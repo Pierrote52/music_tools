@@ -47,6 +47,10 @@ dependencies:
   # metronome's timing logic can be driven by fake_async in tests.
   clock: ^1.1.2
 
+  # Microphone audio capture (raw PCM stream) for the tuner's pitch
+  # detector, see lib/features/tuner/data/.
+  record: ^7.1.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
