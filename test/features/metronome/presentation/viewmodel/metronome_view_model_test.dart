@@ -1,66 +1,22 @@
-import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:music_tools/features/metronome/data/services/drift_corrected_metronome_ticker.dart';
 import 'package:music_tools/features/metronome/data/services/system_click_sound_player.dart';
 import 'package:music_tools/features/metronome/domain/entities/tempo.dart';
-import 'package:music_tools/features/metronome/domain/services/click_sound_player.dart';
-import 'package:music_tools/features/metronome/domain/services/metronome_ticker.dart';
 import 'package:music_tools/features/metronome/presentation/viewmodel/metronome_view_model.dart';
 
-/// A [MetronomeTicker] test double that only emits ticks when the test
-/// explicitly calls [emitTick], instead of driving a real timer.
-class _FakeMetronomeTicker implements MetronomeTicker {
-  final StreamController<void> _controller = StreamController<void>.broadcast();
-
-  /// Every interval passed to [start], in call order.
-  final List<Duration> startedIntervals = [];
-
-  /// How many times [stop] was called.
-  int stopCallCount = 0;
-
-  @override
-  Stream<void> start({required Duration interval}) {
-    startedIntervals.add(interval);
-    return _controller.stream;
-  }
-
-  @override
-  void stop() => stopCallCount++;
-
-  /// Manually pushes a tick to whoever is currently listening.
-  void emitTick() => _controller.add(null);
-
-  /// Releases the underlying controller.
-  Future<void> dispose() => _controller.close();
-}
-
-/// A [ClickSoundPlayer] test double that records calls instead of playing
-/// real audio.
-class _FakeClickSoundPlayer implements ClickSoundPlayer {
-  /// How many times [playRegular] was called.
-  int regularCount = 0;
-
-  /// How many times [playAccented] was called.
-  int accentedCount = 0;
-
-  @override
-  Future<void> playRegular() async => regularCount++;
-
-  @override
-  Future<void> playAccented() async => accentedCount++;
-}
+import '../../fakes/fake_click_sound_player.dart';
+import '../../fakes/fake_metronome_ticker.dart';
 
 void main() {
   group('MetronomeViewModel', () {
-    late _FakeMetronomeTicker ticker;
-    late _FakeClickSoundPlayer player;
+    late FakeMetronomeTicker ticker;
+    late FakeClickSoundPlayer player;
     late ProviderContainer container;
 
     setUp(() {
-      ticker = _FakeMetronomeTicker();
-      player = _FakeClickSoundPlayer();
+      ticker = FakeMetronomeTicker();
+      player = FakeClickSoundPlayer();
       container = ProviderContainer(
         overrides: [
           metronomeTickerProvider.overrideWithValue(ticker),

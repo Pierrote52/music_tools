@@ -11,7 +11,7 @@ is clean, documented, and easy to extend, not feature count.
 
 | Tool | Status |
 |---|---|
-| 🎼 Metronome — configurable BPM, beat pattern, accented first beat | Planned |
+| 🎼 Metronome — configurable BPM, beat pattern, accented first beat | Available |
 | 🎸 Tuner — microphone pitch detection, note + cents offset | Planned |
 | ➕ More tools | Roadmap |
 
@@ -64,19 +64,18 @@ flutter test       # unit + widget tests
 
 ## Project status
 
-Currently at the **walking skeleton** stage: the MVVM folder structure,
-dependencies, and app shell are in place and run, but the Tuner and
-Metronome features themselves are not implemented yet. See
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for what goes where, and each
-feature's own `README.md` (e.g. [lib/features/metronome/README.md](lib/features/metronome/README.md))
-for its planned scope.
+The **Metronome** feature is implemented end-to-end (domain → data →
+presentation, with unit and widget tests). The **Tuner** is not built yet.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for what goes where, and
+each feature's own `README.md` (e.g.
+[lib/features/metronome/README.md](lib/features/metronome/README.md)) for
+its scope.
 
 ## Roadmap
 
 - [x] MVVM project skeleton, dependencies, documentation
-- [ ] Metronome feature (domain → data → presentation)
+- [x] Metronome feature (domain → data → presentation, unit + widget tests)
 - [ ] Tuner feature (domain → data → presentation)
-- [ ] Unit tests for both ViewModels
 - [ ] CI (GitHub Actions: `flutter analyze` + `flutter test`)
 
 ## License

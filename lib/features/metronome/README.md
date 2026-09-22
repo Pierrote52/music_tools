@@ -1,18 +1,28 @@
 # features/metronome/
 
 Metronome: plays an audible click at a configurable tempo (BPM) and beat
-pattern, with an accent on the first beat of each bar.
+pattern, with a haptic accent on the first beat of each bar.
 
 Follows the feature's MVVM layering (see
 [docs/ARCHITECTURE.md](../../../docs/ARCHITECTURE.md) for the full
 rationale):
 
-| Folder | Purpose |
+| Folder | Contents |
 |---|---|
-| `domain/` | Pure Dart entities (`Tempo`, `BeatPattern`, ...) and the interfaces the ViewModel depends on (`MetronomeTicker`, `ClickPlayer`). No Flutter, no plugin imports. |
-| `data/` | Concrete implementations of those interfaces, backed by a high-precision timer and an audio player. |
-| `presentation/view/` | `MetronomeScreen` and its widgets. Reads state from, and forwards user actions to, the ViewModel. No business logic. |
-| `presentation/viewmodel/` | `MetronomeViewModel`, exposing an immutable `MetronomeViewState` and orchestrating the `domain/` use cases. |
+| `domain/entities/` | `Tempo` (validated BPM, converts to a beat interval), `Beat` and `BeatPattern` (which tick is the accented downbeat). Pure Dart, no Flutter import. |
+| `domain/services/` | `MetronomeTicker` and `ClickSoundPlayer` interfaces the ViewModel depends on. |
+| `data/services/` | `DriftCorrectedMetronomeTicker` (schedules ticks against an absolute target time so the beat doesn't drift) and `SystemClickSoundPlayer` (platform system sound + haptic accent, no bundled audio assets). Each exposes a Riverpod provider over its domain interface. |
+| `presentation/viewmodel/` | `MetronomeViewModel` / `MetronomeViewState`: start/stop, tempo changes, beat pattern changes. |
+| `presentation/view/` | `MetronomeScreen` and its `widgets/` (`BeatIndicator`, `TempoStepper`). |
 
-Empty for now — this is the first feature to be implemented, since it needs
-no microphone/runtime permission.
+Tests mirror this structure under
+[test/features/metronome/](../../../test/features/metronome/), including
+shared test doubles (`fakes/FakeMetronomeTicker`, `fakes/FakeClickSoundPlayer`)
+used by both the ViewModel and View tests.
+
+**Known limitation**: since this project ships no audio assets, every beat
+currently reuses the platform's built-in click sound
+(`SystemSoundType.click`); the accent is only distinguishable by an added
+haptic pulse. Swapping in real click/accent audio files only requires a new
+`ClickSoundPlayer` implementation in `data/services/` — the domain and
+presentation layers wouldn't change.
