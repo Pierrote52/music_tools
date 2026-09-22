@@ -43,6 +43,10 @@ dependencies:
   # analyzer flags any accidental mutable field.
   meta: ^1.18.0
 
+  # Injectable clock (instead of raw DateTime.now()/Stopwatch) so the
+  # metronome's timing logic can be driven by fake_async in tests.
+  clock: ^1.1.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -53,6 +57,10 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+
+  # Deterministic virtual-clock testing for Timer-based code (the
+  # metronome's drift-corrected ticker), avoiding flaky real-time waits.
+  fake_async: ^1.3.3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
