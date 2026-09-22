@@ -26,6 +26,8 @@
 	<string>$(PRODUCT_COPYRIGHT)</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Music Tools uses the microphone to detect the pitch you're playing in the tuner.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>
