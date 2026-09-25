@@ -13,6 +13,11 @@ class HomeScreen extends StatelessWidget {
   /// Creates the home screen.
   const HomeScreen({super.key});
 
+  /// Transparent-background crop of the app mark (circle + metronome,
+  /// no wordmark), reused both as the small AppBar logo and as the
+  /// source for the tinted background watermark.
+  static const String _logoMarkAsset = 'assets/icon/icon_transparent.png';
+
   static final List<_ToolEntry> _tools = [
     _ToolEntry(
       label: 'Metronome',
@@ -32,13 +37,49 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final watermarkSize = MediaQuery.sizeOf(context).width * 0.9;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Music Tools')),
-      body: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-        itemCount: _tools.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 16),
-        itemBuilder: (context, index) => _ToolCard(tool: _tools[index]),
+      appBar: AppBar(
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(_logoMarkAsset, width: 28, height: 28),
+            const SizedBox(width: 10),
+            const Text('Music Tools'),
+          ],
+        ),
+      ),
+      body: Stack(
+        children: [
+          // Faint, tinted brand mark bleeding off the bottom-right corner.
+          // IgnorePointer keeps it from intercepting taps meant for the
+          // list above it.
+          Positioned(
+            right: -watermarkSize * 0.25,
+            bottom: -watermarkSize * 0.25,
+            child: IgnorePointer(
+              child: ColorFiltered(
+                colorFilter: ColorFilter.mode(
+                  colorScheme.primary.withValues(alpha: 0.06),
+                  BlendMode.srcIn,
+                ),
+                child: Image.asset(
+                  _logoMarkAsset,
+                  width: watermarkSize,
+                  height: watermarkSize,
+                ),
+              ),
+            ),
+          ),
+          ListView.separated(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            itemCount: _tools.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 16),
+            itemBuilder: (context, index) => _ToolCard(tool: _tools[index]),
+          ),
+        ],
       ),
     );
   }
