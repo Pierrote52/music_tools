@@ -71,9 +71,7 @@ class RecordPitchDetector implements PitchDetector {
       final window = _sampleBuffer.sublist(0, _windowSizeInSamples);
       _sampleBuffer.removeRange(0, _windowSizeInSamples);
 
-      controller.add(
-        estimateFrequency(window, sampleRate: _sampleRate),
-      );
+      controller.add(estimateFrequency(window, sampleRate: _sampleRate));
     }
   }
 

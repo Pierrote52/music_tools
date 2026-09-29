@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:music_tools/features/home/presentation/view/home_screen.dart';
+import 'package:music_tools/features/home/presentation/view/widgets/home_hero_animation.dart';
 
 void main() {
   group('HomeScreen', () {
     testWidgets('lists the Metronome and Tuner tools', (tester) async {
       await tester.pumpWidget(
-        const ProviderScope(child: MaterialApp(home: HomeScreen())),
+        ProviderScope(
+          overrides: [
+            homeHeroAnimationEnabledProvider.overrideWithValue(false),
+          ],
+          child: const MaterialApp(home: HomeScreen()),
+        ),
       );
 
       expect(find.text('Metronome'), findsOneWidget);
@@ -18,7 +24,12 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        const ProviderScope(child: MaterialApp(home: HomeScreen())),
+        ProviderScope(
+          overrides: [
+            homeHeroAnimationEnabledProvider.overrideWithValue(false),
+          ],
+          child: const MaterialApp(home: HomeScreen()),
+        ),
       );
 
       await tester.tap(find.text('Metronome'));
@@ -28,11 +39,14 @@ void main() {
       expect(find.text('120 BPM'), findsOneWidget);
     });
 
-    testWidgets('tapping Tuner navigates to the tuner screen', (
-      tester,
-    ) async {
+    testWidgets('tapping Tuner navigates to the tuner screen', (tester) async {
       await tester.pumpWidget(
-        const ProviderScope(child: MaterialApp(home: HomeScreen())),
+        ProviderScope(
+          overrides: [
+            homeHeroAnimationEnabledProvider.overrideWithValue(false),
+          ],
+          child: const MaterialApp(home: HomeScreen()),
+        ),
       );
 
       await tester.tap(find.text('Tuner'));

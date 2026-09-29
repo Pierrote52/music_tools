@@ -28,7 +28,10 @@ void main() {
     });
 
     test('two notes with the same name and octave are equal', () {
-      expect(const Note(name: 'A', octave: 4), const Note(name: 'A', octave: 4));
+      expect(
+        const Note(name: 'A', octave: 4),
+        const Note(name: 'A', octave: 4),
+      );
     });
   });
 }

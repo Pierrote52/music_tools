@@ -24,34 +24,34 @@ void main() {
       );
     }
 
-    testWidgets('shows a placeholder and a Start button before listening', (
+    testWidgets('starts listening on open, without any Start/Stop button', (
       tester,
     ) async {
       await pumpScreen(tester);
 
       expect(find.text('—'), findsOneWidget);
-      expect(find.text('Start'), findsOneWidget);
-      expect(find.text('Stop'), findsNothing);
+      expect(detector.startCallCount, 1);
+      expect(find.byType(FilledButton), findsNothing);
     });
 
-    testWidgets('tapping Start begins listening and reveals the Stop button', (
-      tester,
-    ) async {
+    testWidgets('stops listening when the screen is closed', (tester) async {
       await pumpScreen(tester);
 
-      await tester.tap(find.text('Start'));
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [pitchDetectorProvider.overrideWithValue(detector)],
+          child: const MaterialApp(home: SizedBox()),
+        ),
+      );
       await tester.pump();
 
-      expect(find.text('Stop'), findsOneWidget);
-      expect(detector.startCallCount, 1);
+      expect(detector.stopCallCount, 1);
     });
 
     testWidgets('a detected frequency updates the displayed note', (
       tester,
     ) async {
       await pumpScreen(tester);
-      await tester.tap(find.text('Start'));
-      await tester.pump();
 
       detector.emitFrequency(440);
       await tester.pump();
@@ -60,19 +60,34 @@ void main() {
       expect(find.text('440.0 Hz'), findsOneWidget);
     });
 
-    testWidgets('a denied permission shows an error message', (tester) async {
-      await pumpScreen(tester);
-      await tester.tap(find.text('Start'));
-      await tester.pump();
+    testWidgets(
+      'a denied permission shows an error message and a retry button',
+      (tester) async {
+        await pumpScreen(tester);
 
+        detector.emitError(const MicrophonePermissionDeniedException());
+        await tester.pump();
+
+        expect(
+          find.text('Microphone permission is required to use the tuner.'),
+          findsOneWidget,
+        );
+        expect(find.text('Try again'), findsOneWidget);
+      },
+    );
+
+    testWidgets('tapping Try again listens again and hides the error', (
+      tester,
+    ) async {
+      await pumpScreen(tester);
       detector.emitError(const MicrophonePermissionDeniedException());
       await tester.pump();
 
-      expect(
-        find.text('Microphone permission is required to use the tuner.'),
-        findsOneWidget,
-      );
-      expect(find.text('Start'), findsOneWidget);
+      await tester.tap(find.text('Try again'));
+      await tester.pump();
+
+      expect(detector.startCallCount, 2);
+      expect(find.text('Try again'), findsNothing);
     });
   });
 }

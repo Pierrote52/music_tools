@@ -7,7 +7,10 @@ import 'widgets/beat_indicator.dart';
 import 'widgets/tempo_stepper.dart';
 
 /// The metronome tool: shows the current tempo and beat, and lets the user
-/// start/stop the beat, change the tempo, and change the beat pattern.
+/// change the tempo and the beat pattern.
+///
+/// The beat plays as soon as the screen opens and stops when it closes;
+/// that lifecycle is owned by [MetronomeViewModel], not by this widget.
 ///
 /// Purely presentational: every piece of state comes from
 /// [metronomeViewModelProvider] and every user action is forwarded to the
@@ -22,7 +25,6 @@ class MetronomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(metronomeViewModelProvider);
     final viewModel = ref.read(metronomeViewModelProvider.notifier);
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Metronome')),
@@ -30,7 +32,7 @@ class MetronomeScreen extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
-            // Stretched so the Card/Wrap/button always span the same
+            // Stretched so the Card/Wrap always span the same
             // width — otherwise a shrink-wrapped Card resizes (and the
             // whole layout visibly shifts) whenever its widest child
             // changes, e.g. the beat dot pulsing or the BPM digit count
@@ -76,21 +78,6 @@ class MetronomeScreen extends ConsumerWidget {
                 ],
               ),
               const Spacer(),
-              FilledButton.icon(
-                onPressed: state.isPlaying ? viewModel.stop : viewModel.start,
-                icon: Icon(
-                  state.isPlaying
-                      ? Icons.stop_rounded
-                      : Icons.play_arrow_rounded,
-                ),
-                label: Text(state.isPlaying ? 'Stop' : 'Start'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: state.isPlaying
-                      ? colorScheme.error
-                      : colorScheme.primary,
-                ),
-              ),
-              const SizedBox(height: 24),
             ],
           ),
         ),

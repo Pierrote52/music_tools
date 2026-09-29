@@ -30,45 +30,39 @@ void main() {
       await ticker.dispose();
     });
 
+    /// Simulates the metronome screen being shown: keeps the auto-disposed
+    /// provider alive until the returned subscription is closed.
+    ProviderSubscription<Object?> openScreen() =>
+        container.listen(metronomeViewModelProvider, (_, _) {});
+
+    /// Simulates the user leaving the metronome screen.
+    Future<void> closeScreen(ProviderSubscription<Object?> screen) async {
+      screen.close();
+      await container.pump();
+    }
+
     MetronomeViewModel readViewModel() =>
         container.read(metronomeViewModelProvider.notifier);
 
-    MetronomeViewModel notifierWithListener() {
-      // Keep the provider alive across the test by watching its state.
-      container.listen(metronomeViewModelProvider, (_, _) {});
-      return readViewModel();
-    }
+    test('starts ticking at the default tempo as soon as the screen opens', () {
+      openScreen();
 
-    test('starts stopped, at the default tempo, with no beat played yet', () {
       final state = container.read(metronomeViewModelProvider);
-
-      expect(state.isPlaying, isFalse);
       expect(state.tempo, const Tempo(120));
       expect(state.currentBeat, isNull);
+      expect(ticker.startedIntervals, [const Tempo(120).beatInterval]);
     });
 
-    test('start() marks the metronome as playing and starts the ticker', () {
-      final viewModel = notifierWithListener();
+    test('stops the ticker when the screen closes', () async {
+      final screen = openScreen();
 
-      viewModel.start();
+      await closeScreen(screen);
 
-      final state = container.read(metronomeViewModelProvider);
-      expect(state.isPlaying, isTrue);
-      expect(ticker.startedIntervals, [state.tempo.beatInterval]);
-    });
-
-    test('start() while already playing does not restart the ticker', () {
-      final viewModel = notifierWithListener();
-
-      viewModel.start();
-      viewModel.start();
-
-      expect(ticker.startedIntervals, hasLength(1));
+      expect(ticker.stopCallCount, 1);
     });
 
     test('each tick advances the current beat and plays its sound', () async {
-      final viewModel = notifierWithListener();
-      viewModel.start();
+      openScreen();
 
       ticker.emitTick();
       await Future<void>.delayed(Duration.zero);
@@ -85,61 +79,68 @@ void main() {
       expect(player.regularCount, 1);
     });
 
-    test('stop() marks the metronome as not playing and stops the ticker', () {
-      final viewModel = notifierWithListener();
-      viewModel.start();
+    test('setTempo() restarts the ticker at the new interval', () {
+      openScreen();
 
-      viewModel.stop();
+      readViewModel().setTempo(const Tempo(90));
 
-      final state = container.read(metronomeViewModelProvider);
-      expect(state.isPlaying, isFalse);
-      expect(state.currentBeat, isNull);
-      expect(ticker.stopCallCount, 1);
-    });
-
-    test('setTempo() while playing restarts the ticker at the new interval', () {
-      final viewModel = notifierWithListener();
-      viewModel.start();
-
-      viewModel.setTempo(const Tempo(90));
-
-      expect(
-        ticker.startedIntervals,
-        [const Tempo(120).beatInterval, const Tempo(90).beatInterval],
-      );
-      expect(container.read(metronomeViewModelProvider).tempo, const Tempo(90));
-    });
-
-    test('setTempo() while stopped only updates the state, no ticker restart', () {
-      final viewModel = notifierWithListener();
-
-      viewModel.setTempo(const Tempo(90));
-
-      expect(ticker.startedIntervals, isEmpty);
+      expect(ticker.startedIntervals, [
+        const Tempo(120).beatInterval,
+        const Tempo(90).beatInterval,
+      ]);
       expect(container.read(metronomeViewModelProvider).tempo, const Tempo(90));
     });
 
     test('incrementTempo()/decrementTempo() shift the tempo by one BPM', () {
-      final viewModel = notifierWithListener();
+      openScreen();
+      final viewModel = readViewModel();
 
       viewModel.incrementTempo();
-      expect(container.read(metronomeViewModelProvider).tempo, const Tempo(121));
+      expect(
+        container.read(metronomeViewModelProvider).tempo,
+        const Tempo(121),
+      );
 
       viewModel.decrementTempo();
       viewModel.decrementTempo();
-      expect(container.read(metronomeViewModelProvider).tempo, const Tempo(119));
+      expect(
+        container.read(metronomeViewModelProvider).tempo,
+        const Tempo(119),
+      );
     });
 
-    test('setBeatsPerBar() updates the pattern and resets the current beat', () {
-      final viewModel = notifierWithListener();
-      viewModel.start();
-      ticker.emitTick();
+    test(
+      'setBeatsPerBar() updates the pattern and resets the current beat',
+      () async {
+        openScreen();
+        ticker.emitTick();
+        await Future<void>.delayed(Duration.zero);
 
-      viewModel.setBeatsPerBar(3);
+        readViewModel().setBeatsPerBar(3);
 
-      final state = container.read(metronomeViewModelProvider);
-      expect(state.beatPattern.beatsPerBar, 3);
-      expect(state.currentBeat, isNull);
-    });
+        final state = container.read(metronomeViewModelProvider);
+        expect(state.beatPattern.beatsPerBar, 3);
+        expect(state.currentBeat, isNull);
+      },
+    );
+
+    test(
+      'reopening the screen restores the last tempo and beat pattern',
+      () async {
+        final firstVisit = openScreen();
+        readViewModel()
+          ..setTempo(const Tempo(90))
+          ..setBeatsPerBar(3);
+        await closeScreen(firstVisit);
+
+        openScreen();
+
+        final state = container.read(metronomeViewModelProvider);
+        expect(state.tempo, const Tempo(90));
+        expect(state.beatPattern.beatsPerBar, 3);
+        expect(state.currentBeat, isNull);
+        expect(ticker.startedIntervals.last, const Tempo(90).beatInterval);
+      },
+    );
   });
 }

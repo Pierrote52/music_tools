@@ -7,8 +7,14 @@ import '../../domain/entities/pitch_reading.dart';
 import '../../domain/services/pitch_detector.dart';
 import 'tuner_view_state.dart';
 
-/// Drives the tuner screen: starts/stops listening to the microphone and
-/// keeps [TunerViewState] in sync with each detected pitch.
+/// Drives the tuner screen: listens to the microphone for as long as the
+/// screen is shown and keeps [TunerViewState] in sync with each detected
+/// pitch.
+///
+/// Its lifecycle *is* the listening session: [tunerViewModelProvider] is
+/// auto-disposed, so the microphone starts when the screen first watches
+/// it and is released as soon as the screen leaves the widget tree — no
+/// start/stop command for the View to get wrong.
 ///
 /// Depends on [PitchDetector] only through its domain interface (read via
 /// [pitchDetectorProvider]), so tests can override that provider with a
@@ -19,36 +25,35 @@ class TunerViewModel extends Notifier<TunerViewState> {
 
   @override
   TunerViewState build() {
-    ref.onDispose(() => _subscription?.cancel());
+    // Captured here rather than read in the callback: `ref` can no longer
+    // be used once the provider is being disposed.
+    final detector = _detector;
+    ref.onDispose(() {
+      unawaited(_subscription?.cancel());
+      unawaited(detector.stop());
+    });
+
+    _startDetection();
     return TunerViewState.initial();
   }
 
   PitchDetector get _detector => ref.read(pitchDetectorProvider);
 
-  /// Starts listening to the microphone. Does nothing if already
+  /// Listens to the microphone again after an error (e.g. once the user
+  /// has granted the microphone permission). Does nothing if already
   /// listening.
-  void startListening() {
+  void retry() {
     if (state.isListening) {
       return;
     }
 
-    state = state.copyWith(
-      isListening: true,
-      clearReading: true,
-      clearErrorMessage: true,
-    );
-    _subscription = _detector.start().listen(
-      _onFrequency,
-      onError: _onError,
-    );
+    state = TunerViewState.initial();
+    _startDetection();
   }
 
-  /// Stops listening to the microphone.
-  Future<void> stopListening() async {
-    await _subscription?.cancel();
-    _subscription = null;
-    await _detector.stop();
-    state = state.copyWith(isListening: false, clearReading: true);
+  void _startDetection() {
+    unawaited(_subscription?.cancel());
+    _subscription = _detector.start().listen(_onFrequency, onError: _onError);
   }
 
   void _onFrequency(double? frequencyHz) {
@@ -71,5 +76,10 @@ class TunerViewModel extends Notifier<TunerViewState> {
 /// Exposes the [TunerViewModel] and its [TunerViewState] to the View, and
 /// provides the dependency-injection point tests override to substitute a
 /// fake pitch detector.
+///
+/// Auto-disposed so that leaving the tuner screen releases the microphone
+/// (see [TunerViewModel]).
 final tunerViewModelProvider =
-    NotifierProvider<TunerViewModel, TunerViewState>(TunerViewModel.new);
+    NotifierProvider.autoDispose<TunerViewModel, TunerViewState>(
+      TunerViewModel.new,
+    );

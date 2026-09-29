@@ -56,6 +56,10 @@ dependencies:
   # setting). See lib/features/metronome/data/.
   audioplayers: ^6.8.1
 
+  # Renders the animated character (.riv) shown on the home screen, see
+  # lib/features/home/presentation/view/widgets/home_hero_animation.dart.
+  rive: ^0.14.11
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -120,6 +124,7 @@ flutter:
   assets:
     - assets/icon/
     - assets/branding/
+    - assets/rive/
 
 # Source logo (assets/icon/icon.png, a square crop of the metronome mark
 # without the wordmark, since text disappears at launcher-icon sizes) and

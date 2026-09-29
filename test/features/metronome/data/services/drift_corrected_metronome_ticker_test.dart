@@ -70,7 +70,11 @@ void main() {
 
           async.elapse(const Duration(milliseconds: 350));
 
-          expect(slowTicks, 0, reason: 'the first stream must not tick after being restarted');
+          expect(
+            slowTicks,
+            0,
+            reason: 'the first stream must not tick after being restarted',
+          );
           expect(fastTicks, 3);
 
           unawaited(firstSubscription.cancel());

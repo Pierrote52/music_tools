@@ -39,9 +39,9 @@ class TempoStepper extends StatelessWidget {
           child: Text(
             '${tempo.bpm} BPM',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.displaySmall?.copyWith(
-              color: colorScheme.primary,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.displaySmall?.copyWith(color: colorScheme.primary),
           ),
         ),
         _StepButton(

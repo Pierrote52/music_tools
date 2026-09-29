@@ -33,7 +33,8 @@ class Tempo {
 
   /// Returns a copy of this tempo shifted by [deltaBpm], clamped to
   /// [minBpm]..[maxBpm] so it always produces a valid [Tempo].
-  Tempo shiftedBy(int deltaBpm) => Tempo((bpm + deltaBpm).clamp(minBpm, maxBpm));
+  Tempo shiftedBy(int deltaBpm) =>
+      Tempo((bpm + deltaBpm).clamp(minBpm, maxBpm));
 
   @override
   bool operator ==(Object other) => other is Tempo && other.bpm == bpm;

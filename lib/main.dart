@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rive/rive.dart';
 
 import 'app/music_tools_app.dart';
 
@@ -9,6 +10,9 @@ import 'app/music_tools_app.dart';
 /// declared across the `features/` and `core/` layers becomes available to
 /// the widget tree below it. No business logic lives here on purpose: this
 /// file only wires the Flutter binding to the app's root widget.
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Loads the Rive native runtime used by the home screen animation.
+  await RiveNative.init();
   runApp(const ProviderScope(child: MusicToolsApp()));
 }

@@ -46,7 +46,8 @@ double? estimateFrequency(
   );
 
   final correlations = [
-    for (var lag = minLag; lag <= maxLag; lag++) _autocorrelationAt(samples, lag),
+    for (var lag = minLag; lag <= maxLag; lag++)
+      _autocorrelationAt(samples, lag),
   ];
 
   var peakCorrelation = 0.0;
@@ -72,7 +73,8 @@ double? estimateFrequency(
     final isLocalMaximum =
         correlations[i] >= correlations[i - 1] &&
         correlations[i] >= correlations[i + 1];
-    if (isLocalMaximum && correlations[i] >= peakCorrelation * _harmonicRejectionThreshold) {
+    if (isLocalMaximum &&
+        correlations[i] >= peakCorrelation * _harmonicRejectionThreshold) {
       return sampleRate / (minLag + i);
     }
   }

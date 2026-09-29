@@ -23,44 +23,35 @@ void main() {
       await detector.dispose();
     });
 
+    /// Simulates the tuner screen being shown: keeps the auto-disposed
+    /// provider alive until the returned subscription is closed.
+    ProviderSubscription<Object?> openScreen() =>
+        container.listen(tunerViewModelProvider, (_, _) {});
+
     TunerViewModel readViewModel() =>
         container.read(tunerViewModelProvider.notifier);
 
-    TunerViewModel notifierWithListener() {
-      // Keep the provider alive across the test by watching its state.
-      container.listen(tunerViewModelProvider, (_, _) {});
-      return readViewModel();
-    }
+    test('starts listening as soon as the screen opens', () {
+      openScreen();
 
-    test('starts not listening, with no reading and no error', () {
       final state = container.read(tunerViewModelProvider);
-
-      expect(state.isListening, isFalse);
+      expect(state.isListening, isTrue);
       expect(state.reading, isNull);
       expect(state.errorMessage, isNull);
-    });
-
-    test('startListening() marks the tuner as listening and starts the detector', () {
-      final viewModel = notifierWithListener();
-
-      viewModel.startListening();
-
-      expect(container.read(tunerViewModelProvider).isListening, isTrue);
       expect(detector.startCallCount, 1);
     });
 
-    test('startListening() while already listening does not restart the detector', () {
-      final viewModel = notifierWithListener();
+    test('stops the detector when the screen closes', () async {
+      final screen = openScreen();
 
-      viewModel.startListening();
-      viewModel.startListening();
+      screen.close();
+      await container.pump();
 
-      expect(detector.startCallCount, 1);
+      expect(detector.stopCallCount, 1);
     });
 
     test('a detected frequency becomes a PitchReading in the state', () async {
-      final viewModel = notifierWithListener();
-      viewModel.startListening();
+      openScreen();
 
       detector.emitFrequency(440);
       await Future<void>.delayed(Duration.zero);
@@ -71,8 +62,7 @@ void main() {
     });
 
     test('a null frequency (silence) clears the current reading', () async {
-      final viewModel = notifierWithListener();
-      viewModel.startListening();
+      openScreen();
       detector.emitFrequency(440);
       await Future<void>.delayed(Duration.zero);
 
@@ -82,28 +72,42 @@ void main() {
       expect(container.read(tunerViewModelProvider).reading, isNull);
     });
 
-    test('a MicrophonePermissionDeniedException stops listening with a message', () async {
-      final viewModel = notifierWithListener();
-      viewModel.startListening();
+    test(
+      'a MicrophonePermissionDeniedException stops listening with a message',
+      () async {
+        openScreen();
 
+        detector.emitError(const MicrophonePermissionDeniedException());
+        await Future<void>.delayed(Duration.zero);
+
+        final state = container.read(tunerViewModelProvider);
+        expect(state.isListening, isFalse);
+        expect(state.errorMessage, isNotNull);
+      },
+    );
+
+    test('retry() after an error listens again and clears the error', () async {
+      openScreen();
       detector.emitError(const MicrophonePermissionDeniedException());
       await Future<void>.delayed(Duration.zero);
 
-      final state = container.read(tunerViewModelProvider);
-      expect(state.isListening, isFalse);
-      expect(state.errorMessage, isNotNull);
-    });
-
-    test('stopListening() marks the tuner as not listening and stops the detector', () async {
-      final viewModel = notifierWithListener();
-      viewModel.startListening();
-
-      await viewModel.stopListening();
+      readViewModel().retry();
 
       final state = container.read(tunerViewModelProvider);
-      expect(state.isListening, isFalse);
-      expect(state.reading, isNull);
-      expect(detector.stopCallCount, 1);
+      expect(state.isListening, isTrue);
+      expect(state.errorMessage, isNull);
+      expect(detector.startCallCount, 2);
     });
+
+    test(
+      'retry() while already listening does not restart the detector',
+      () async {
+        openScreen();
+
+        readViewModel().retry();
+
+        expect(detector.startCallCount, 1);
+      },
+    );
   });
 }

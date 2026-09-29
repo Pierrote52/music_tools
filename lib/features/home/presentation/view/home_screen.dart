@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../metronome/presentation/view/metronome_screen.dart';
 import '../../../tuner/presentation/view/tuner_screen.dart';
+import 'widgets/home_hero_animation.dart';
 
 /// Entry screen of the application.
 ///
@@ -75,9 +76,12 @@ class HomeScreen extends StatelessWidget {
           ),
           ListView.separated(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-            itemCount: _tools.length,
+            // Item 0 is the animated hero, followed by one card per tool.
+            itemCount: _tools.length + 1,
             separatorBuilder: (context, index) => const SizedBox(height: 16),
-            itemBuilder: (context, index) => _ToolCard(tool: _tools[index]),
+            itemBuilder: (context, index) => index == 0
+                ? const HomeHeroAnimation()
+                : _ToolCard(tool: _tools[index - 1]),
           ),
         ],
       ),

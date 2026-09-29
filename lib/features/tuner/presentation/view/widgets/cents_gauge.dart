@@ -41,8 +41,11 @@ class CentsGauge extends StatelessWidget {
       height: 40,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final markerLeft = (fraction * constraints.maxWidth - _markerDiameter / 2)
-              .clamp(0.0, constraints.maxWidth - _markerDiameter);
+          final markerLeft =
+              (fraction * constraints.maxWidth - _markerDiameter / 2).clamp(
+                0.0,
+                constraints.maxWidth - _markerDiameter,
+              );
 
           return Stack(
             alignment: Alignment.center,
@@ -60,7 +63,11 @@ class CentsGauge extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(width: 2, height: 24, color: colorScheme.outlineVariant),
+              Container(
+                width: 2,
+                height: 24,
+                color: colorScheme.outlineVariant,
+              ),
               if (reading != null)
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 150),

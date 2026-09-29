@@ -23,8 +23,14 @@ void main() {
     });
 
     test('shiftedBy clamps at the supported boundaries', () {
-      expect(const Tempo(Tempo.minBpm).shiftedBy(-100), const Tempo(Tempo.minBpm));
-      expect(const Tempo(Tempo.maxBpm).shiftedBy(100), const Tempo(Tempo.maxBpm));
+      expect(
+        const Tempo(Tempo.minBpm).shiftedBy(-100),
+        const Tempo(Tempo.minBpm),
+      );
+      expect(
+        const Tempo(Tempo.maxBpm).shiftedBy(100),
+        const Tempo(Tempo.maxBpm),
+      );
     });
 
     test('two tempos with the same bpm are equal', () {

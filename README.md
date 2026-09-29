@@ -4,8 +4,6 @@ A Flutter toolbox for musicians, starting with a **chromatic tuner** and a
 **metronome**, built to grow with more tools over time — no backend, 100%
 on-device.
 
-This project doubles as a portfolio piece: the priority is a codebase that
-is clean, documented, and easy to extend, not feature count.
 
 ## Features
 

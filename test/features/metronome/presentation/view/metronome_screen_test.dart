@@ -30,24 +30,31 @@ void main() {
       );
     }
 
-    testWidgets('shows the default tempo and a Start button', (tester) async {
-      await pumpScreen(tester);
-
-      expect(find.text('120 BPM'), findsOneWidget);
-      expect(find.text('Start'), findsOneWidget);
-      expect(find.text('Stop'), findsNothing);
-    });
-
-    testWidgets('tapping Start begins playback and reveals the Stop button', (
+    testWidgets('starts ticking on open, without any Start/Stop button', (
       tester,
     ) async {
       await pumpScreen(tester);
 
-      await tester.tap(find.text('Start'));
+      expect(find.text('120 BPM'), findsOneWidget);
+      expect(ticker.startedIntervals, hasLength(1));
+      expect(find.byType(FilledButton), findsNothing);
+    });
+
+    testWidgets('stops ticking when the screen is closed', (tester) async {
+      await pumpScreen(tester);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            metronomeTickerProvider.overrideWithValue(ticker),
+            clickSoundPlayerProvider.overrideWithValue(player),
+          ],
+          child: const MaterialApp(home: SizedBox()),
+        ),
+      );
       await tester.pump();
 
-      expect(find.text('Stop'), findsOneWidget);
-      expect(ticker.startedIntervals, hasLength(1));
+      expect(ticker.stopCallCount, 1);
     });
 
     testWidgets('tapping the increment button raises the displayed tempo', (
@@ -70,10 +77,7 @@ void main() {
       await tester.pump();
 
       final chip = tester.widget<ChoiceChip>(
-        find.ancestor(
-          of: find.text('3/4'),
-          matching: find.byType(ChoiceChip),
-        ),
+        find.ancestor(of: find.text('3/4'), matching: find.byType(ChoiceChip)),
       );
       expect(chip.selected, isTrue);
     });

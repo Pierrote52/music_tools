@@ -12,15 +12,17 @@ class TunerViewState {
     required this.errorMessage,
   });
 
-  /// The state the tuner screen starts in: not listening, no reading yet,
-  /// no error.
+  /// The state the tuner screen starts in: listening, no reading yet, no
+  /// error.
   factory TunerViewState.initial() => const TunerViewState(
-    isListening: false,
+    isListening: true,
     reading: null,
     errorMessage: null,
   );
 
-  /// Whether the microphone is currently being listened to.
+  /// Whether the microphone is currently being listened to. Only `false`
+  /// after an error, until [TunerViewModel.retry] — see
+  /// `tuner_view_model.dart`.
   final bool isListening;
 
   /// The most recent pitch detected, or `null` if nothing has been
